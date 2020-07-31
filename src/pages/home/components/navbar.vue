@@ -191,6 +191,10 @@ export default {
         .then((res) => {
           if (res.data["status_code"] == 200) {
             this.getNewData();
+            axios({
+              method: "get",
+              url: "http://129.28.35.195:3000/",
+            }).then((res) => {});
             this.$message({
               type: "success",
               message: "增加成功!",
@@ -224,6 +228,10 @@ export default {
       }).then((res) => {
         if (res.data["status_code"] == 200) {
           this.getNewData();
+          axios({
+            method: "get",
+            url: "http://129.28.35.195:3000/",
+          }).then((res) => {});
           this.$message({
             type: "success",
             message: "修改成功!",
@@ -286,6 +294,10 @@ export default {
           this.axios.delete("navbar/" + scope_row.navbar_id).then((res) => {
             if (res.data["code"] == 200) {
               this.getNewData();
+              axios({
+                method: "get",
+                url: "http://129.28.35.195:3000/",
+              }).then((res) => {});
               this.$message({
                 type: "success",
                 message: "删除成功!",

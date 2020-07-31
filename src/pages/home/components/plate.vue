@@ -4,12 +4,7 @@
       <div class="search_box">
         <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
       </div>
-      <el-button
-        icon="el-icon-plus"
-        class="button_icon_self"
-        circle
-        @click="handleAdd()"
-      ></el-button>
+      <el-button icon="el-icon-plus" class="button_icon_self" circle @click="handleAdd()"></el-button>
     </div>
     <el-table
       ref="multipleTable"
@@ -22,49 +17,27 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" min-width="5%"></el-table-column>
-      <el-table-column
-        prop="forum_id"
-        label="板块序号"
-        min-width="12%"
-      ></el-table-column>
-      <el-table-column
-        prop="forum_title"
-        label="板块标题"
-        min-width="14%"
-      ></el-table-column>
-      <el-table-column
-        prop="navbar_title"
-        label="所属导航栏"
-        min-width="14%"
-      ></el-table-column>
-      <el-table-column
-        prop="forum_visited"
-        label="热度"
-        min-width="14%"
-      ></el-table-column>
-      <el-table-column
-        prop="forum_icon"
-        label="图标类名"
-        width="120"
-        min-width="14%"
-      ></el-table-column>
+      <el-table-column prop="forum_id" label="板块序号" min-width="12%"></el-table-column>
+      <el-table-column prop="forum_title" label="板块标题" min-width="14%"></el-table-column>
+      <el-table-column prop="navbar_title" label="所属导航栏" min-width="14%"></el-table-column>
+      <el-table-column prop="forum_visited" label="热度" min-width="14%"></el-table-column>
+      <el-table-column prop="forum_icon" label="图标" width="120" min-width="14%">
+        <template slot-scope="scope">
+          <img
+            style="width:40px;height:40px;filter: drop-shadow(#909399 80px 0);
+transform: translateX(-80px);"
+            :src="scope.row.forum_icon"
+          />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" min-width="18%" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-            >修改</el-button
-          >
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-            >删除</el-button
-          >
+          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <div
-      style="text-align: center;position:fixed;width:100%;bottom:8px;margin-top:8px;"
-    >
+    <div style="text-align: center;position:fixed;width:100%;bottom:8px;margin-top:8px;">
       <el-pagination
         background
         layout="prev, pager, next"
@@ -72,16 +45,13 @@
         @current-change="current_change"
       ></el-pagination>
     </div>
-    <el-dialog title="修改/编辑板块" :visible.sync="dialogForm_Edit_Visible">
-      <el-form :model="form_edit">
+    <el-dialog style="text-align: left;" title="修改/编辑板块" :visible.sync="dialogForm_Edit_Visible">
+      <el-form :model="form_edit" label-position="left">
         <el-form-item label="板块序号" :label-width="formLabelWidth">
           <el-input v-model="form_edit.forum_id" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="板块标题" :label-width="formLabelWidth">
-          <el-input
-            v-model="form_edit.forum_title"
-            autocomplete="off"
-          ></el-input>
+          <el-input v-model="form_edit.forum_title" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="所属导航栏" :label-width="formLabelWidth">
           <el-select v-model="form_edit.navbar_id" placeholder="请选择">
@@ -90,15 +60,11 @@
               :key="item.value"
               :label="item.label"
               :value="item.value"
-            >
-            </el-option>
+            ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="图标类名" :label-width="formLabelWidth">
-          <el-input
-            v-model="form_edit.forum_icon"
-            autocomplete="off"
-          ></el-input>
+        <el-form-item label="图标base64编码" :label-width="formLabelWidth">
+          <el-input v-model="form_edit.forum_icon" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -109,17 +75,13 @@
             dialogForm_Edit_Visible = false;
             editForum();
           "
-          >确 定</el-button
-        >
+        >确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="增加板块" :visible.sync="dialogForm_Add_Visible">
       <el-form :model="form_add" label-position="left">
         <el-form-item label="板块标题" :label-width="formLabelWidth">
-          <el-input
-            v-model="form_add.forum_title"
-            autocomplete="off"
-          ></el-input>
+          <el-input v-model="form_add.forum_title" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="所属导航栏" :label-width="formLabelWidth">
           <el-select v-model="form_add.navbar_id" placeholder="请选择">
@@ -128,11 +90,10 @@
               :key="item.value"
               :label="item.label"
               :value="item.value"
-            >
-            </el-option>
+            ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="图标类名" :label-width="formLabelWidth">
+        <el-form-item label="图标base64编码" :label-width="formLabelWidth">
           <el-input v-model="form_add.forum_icon" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -144,8 +105,7 @@
             dialogForm_Add_Visible = false;
             addForum();
           "
-          >确 定</el-button
-        >
+        >确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -161,22 +121,23 @@ export default {
       currentForum_id: 0,
       dialogForm_Edit_Visible: false,
       dialogForm_Add_Visible: false,
+      formLabelWidth: "120px",
       form_add: {
         forum_icon: "",
         forum_title: "",
-        navbar_id: 0,
+        navbar_id: 0
       },
       form_edit: {
         forum_icon: "",
         forum_id: 0,
         forum_title: "",
-        navbar_id: 0,
+        navbar_id: 0
       },
       tableData: [],
       multipleSelection: [],
       total: 0,
       pagesize: 10,
-      currentPage: 1,
+      currentPage: 1
     };
   },
   created() {
@@ -192,22 +153,26 @@ export default {
         .post("forum/", {
           navbar_id,
           forum_title,
-          forum_icon,
+          forum_icon
         })
-        .then((res) => {
+        .then(res => {
           if (res.data["status_code"] == 200) {
             this.getNewData();
+            axios({
+              method: "get",
+              url: "http://129.28.35.195:3000/"
+            }).then(res => {});
             this.$message({
               type: "success",
               message: "修改成功!",
-              showClose: true,
+              showClose: true
             });
           } else {
             this.getNewData();
             this.$message({
               type: "info",
               message: "修改失败!",
-              showClose: true,
+              showClose: true
             });
           }
         });
@@ -220,22 +185,26 @@ export default {
         data: {
           navbar_id,
           forum_title,
-          forum_icon,
-        },
-      }).then((res) => {
+          forum_icon
+        }
+      }).then(res => {
         if (res.data["status_code"] == 200) {
           this.getNewData();
+          axios({
+            method: "get",
+            url: "http://129.28.35.195:3000/"
+          }).then(res => {});
           this.$message({
             type: "success",
             message: "修改成功!",
-            showClose: true,
+            showClose: true
           });
         } else {
           this.getNewData();
           this.$message({
             type: "info",
             message: "修改失败!",
-            showClose: true,
+            showClose: true
           });
         }
       });
@@ -252,17 +221,17 @@ export default {
     getNewData: function() {
       this.axios({
         method: "get",
-        url: "forum/",
-      }).then((res) => {
+        url: "forum/"
+      }).then(res => {
         this.tableData = res.data.data;
         this.total = res.data.data.length;
         this.$store.dispatch("setplateData", res.data.data);
         this.$store.dispatch(
           "setplateList",
-          res.data.data.map((item) => {
+          res.data.data.map(item => {
             return {
               value: item.forum_id,
-              label: item.forum_title,
+              label: item.forum_title
             };
           })
         );
@@ -283,22 +252,26 @@ export default {
       this.$confirm("确认要删除吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
-          this.axios.delete("forum/" + scope_row.forum_id).then((res) => {
+          this.axios.delete("forum/" + scope_row.forum_id).then(res => {
             if (res.data["code"] == 200) {
               this.getNewData();
+              axios({
+                method: "get",
+                url: "http://129.28.35.195:3000/"
+              }).then(res => {});
               this.$message({
                 type: "success",
                 message: "删除成功!",
-                showClose: true,
+                showClose: true
               });
             } else {
               this.$message({
                 type: "info",
                 message: "删除失败!",
-                showClose: true,
+                showClose: true
               });
             }
           });
@@ -307,14 +280,14 @@ export default {
           this.$message({
             type: "info",
             message: "已取消删除",
-            showClose: true,
+            showClose: true
           });
         });
     },
     mounted: function() {
       this.addUser();
-    },
-  },
+    }
+  }
 };
 </script>
 <style scoped>

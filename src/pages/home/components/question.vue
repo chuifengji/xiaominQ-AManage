@@ -6,7 +6,7 @@
       </div>
       <el-button
         :icon="[
-          !Table_Add_Visible && !Table_Edit_Visible
+          !Table_Model_Visible
             ? 'el-icon-plus'
             : 'el-icon-close',
         ]"
@@ -15,100 +15,45 @@
         circle
       ></el-button>
     </div>
-    <!-- 点击添加后展示内容 -->
-    <div v-if="Table_Add_Visible" class="add_form_contanier">
-      <el-form :model="form_add" label-position="left" label-width="100px">
-        <el-form-item label="所属板块">
-          <el-select v-model="form_add.forum_id" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="问题标题">
-          <el-input
-            v-model="form_add.question_title"
-            autocomplete="off"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="所属答案">
-          <el-input
-            :autosize="{ minRows: 10 }"
-            v-model="form_add.question_content"
-            type="textarea"
-            autocomplete="off"
-          >
-          </el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="Table_Add_Visible = false">取 消</el-button>
-        <el-button
-          type="primary"
-          @click="
-            Table_Add_Visible = false;
-            addQuestion();
-          "
-          >确 定</el-button
-        >
-      </div>
-    </div>
 
-    <div v-if="Table_Edit_Visible" class="add_form_contanier">
-      <el-form :model="form_edit" label-position="left" label-width="100px">
-        <el-form-item label="问题序号">
-          <el-input
-            v-model="form_edit.question_id"
-            autocomplete="off"
-          ></el-input>
+    <div v-if="Table_Model_Visible" class="add_form_contanier">
+      <el-form :model="form_model" label-position="left" label-width="100px">
+        <el-form-item v-if="Table_Add_Visible" label="问题序号">
+          <el-input v-model="form_model.question_id" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="所属板块">
-          <el-select v-model="form_edit.forum_id" placeholder="请选择">
+          <el-select v-model="form_model.forum_id" placeholder="请选择">
             <el-option
               v-for="item in options"
               :key="item.value"
               :label="item.label"
               :value="item.value"
-            >
-            </el-option>
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="问题标题">
-          <el-input
-            v-model="form_edit.question_title"
-            autocomplete="off"
-          ></el-input>
+          <el-input v-model="form_model.question_title" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="所属答案">
-          <el-input
-            :autosize="{ minRows: 10 }"
-            v-model="form_edit.question_content"
-            type="textarea"
-            autocomplete="off"
-          >
-          </el-input>
+          <editor ref="editorObject" :originalData="form_model.question_content"></editor>
         </el-form-item>
       </el-form>
+
       <div slot="footer" class="dialog-footer">
-        <el-button @click="Table_Edit_Visible = false">取 消</el-button>
+        <el-button @click="Table_Model_Visible = false;clearModel()">取 消</el-button>
         <el-button
           type="primary"
           @click="
-            Table_Edit_Visible = false;
-            editQuestion();
+            Table_Model_Visible = false;
+            postQuestion();
           "
-          >确 定</el-button
-        >
+        >确 定</el-button>
       </div>
     </div>
     <!-- 表格主体内容 -->
     <el-table
       ref="multipleTable"
-      v-if="!Table_Add_Visible && !Table_Edit_Visible"
+      v-if="!Table_Model_Visible"
       :data="
         tableData
           .filter(
@@ -123,14 +68,11 @@
       :height="tableHeight"
       style="width: 100%;font-size:12px;white-space:pre-wrap;position:relative;"
     >
-      <el-table-column type="selection" min-width="5%"> </el-table-column>
-      <el-table-column prop="question_id" label="问题序号" min-width="6%">
-      </el-table-column>
-      <el-table-column prop="forum_title" label="所属板块" min-width="6%">
-      </el-table-column>
-      <el-table-column prop="question_title" label="问题标题" min-width="7%">
-      </el-table-column>
-      <el-table-column prop="question_content" label="问题答案" min-width="54%">
+      <el-table-column type="selection" min-width="5%"></el-table-column>
+      <el-table-column prop="question_id" label="问题序号" min-width="6%"></el-table-column>
+      <el-table-column prop="forum_title" label="所属板块" min-width="6%"></el-table-column>
+      <el-table-column prop="question_title" label="问题标题" min-width="7%"></el-table-column>
+      <el-table-column prop="question_content" label="问题答案" min-width="25%">
         <template slot-scope="scope">
           <div v-html="scope.row.question_content"></div>
         </template>
@@ -140,54 +82,46 @@
           <el-button
             size="mini"
             @click="
-              Table_Edit_Visible = true;
               handleEdit(scope.$index, scope.row);
             "
-            >编辑
-          </el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-            >删除
-          </el-button>
+          >编辑</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div
       style="text-align: center;position:fixed;width:100%;bottom:8px;"
-      v-if="!Table_Add_Visible && !Table_Edit_Visible"
+      v-if="!Table_Model_Visible"
     >
       <el-pagination
         background
         layout="prev, pager, next"
         :total="total"
         @current-change="current_change"
-      >
-      </el-pagination>
+      ></el-pagination>
     </div>
   </div>
 </template>
 
 <script>
+import { uploadInit } from "../../../assets/js/qiniu";
+import Editor from "../../../components/Editor";
 export default {
   name: "Question",
+  components: {
+    Editor,
+  },
   data() {
     return {
+      editorContent: "",
       options: [],
       tableHeight: 0,
+      Table_Model_Visible: false,
       Table_Add_Visible: false,
-      Table_Edit_Visible: false,
-      question_id_visible: true,
       currentQuestionContent: "",
       currentQuestion_id: 0,
-      form_edit: {
+      form_model: {
         question_id: "",
-        forum_id: "",
-        question_title: "",
-        question_content: "",
-      },
-      form_add: {
         forum_id: "",
         question_title: "",
         question_content: "",
@@ -206,11 +140,17 @@ export default {
     this.getData();
     this.options = JSON.parse(localStorage.getItem("plateList"));
   },
+  mounted: function () {
+    this.addUser();
+  },
   methods: {
-    addQuestion: function() {
-      let { question_title, question_content, forum_id } = this.form_add;
-      question_content = question_content.replace(/\n/g, "<br>");
-      question_content = question_content.replace(/ /g, "&nbsp");
+    postQuestion: function () {
+      this.Table_Add_Visible ? this.addQuestion() : this.editQuestion();
+    },
+    addQuestion: function () {
+      console.log(this.$refs.editorObject.editorContent);
+      let { question_title, forum_id } = this.form_model,
+        question_content = this.$refs.editorObject.editorContent;
       this.axios
         .post("question/", {
           question_title,
@@ -220,6 +160,10 @@ export default {
         .then((res) => {
           if (res.data["status_code"] == 200) {
             this.getNewData();
+            axios({
+              method: "get",
+              url: "http://129.28.35.195:3000/",
+            }).then((res) => {});
             this.$message({
               type: "success",
               message: "增加成功!",
@@ -234,10 +178,10 @@ export default {
           }
         });
     },
-    editQuestion: function() {
-      let { question_title, question_content, forum_id } = this.form_edit;
-      question_content = question_content.replace(/\n/g, "<br>");
-      question_content = question_content.replace(/ /g, "&nbsp;");
+    editQuestion: function () {
+      console.log(this.$refs.editorObject.editorContent);
+      let { question_title, forum_id } = this.form_model,
+        question_content = this.$refs.editorObject.editorContent;
       this.axios({
         method: "put",
         url: "question/" + this.currentQuestion_id,
@@ -249,6 +193,10 @@ export default {
       }).then((res) => {
         if (res.data["status_code"] == 200) {
           this.getNewData();
+          axios({
+            method: "get",
+            url: "http://129.28.35.195:3000/",
+          }).then((res) => {});
           this.$message({
             type: "success",
             message: "修改成功!",
@@ -263,7 +211,15 @@ export default {
         }
       });
     },
-    getData: function() {
+    clearModel: function () {
+      this.form_model = {
+        question_id: "",
+        forum_id: "",
+        question_title: "",
+        question_content: "",
+      };
+    },
+    getData: function () {
       let questionData = JSON.parse(localStorage.getItem("questionData"));
       if (questionData) {
         this.tableData = questionData;
@@ -272,7 +228,7 @@ export default {
         this.getNewData();
       }
     },
-    getNewData: function() {
+    getNewData: function () {
       this.axios({
         method: "get",
         url: "question/",
@@ -282,36 +238,24 @@ export default {
         this.$store.dispatch("setquestionData", res.data.data);
       });
     },
-    current_change: function(currentPage) {
+    current_change: function (currentPage) {
       this.currentPage = currentPage;
     },
-    handleAdd: function() {
-      let A = this.Table_Add_Visible;
-      let E = this.Table_Edit_Visible;
-      if (A === false && E == false) {
-        this.Table_Add_Visible = true;
-      } else if (A === true && E == false) {
-        this.Table_Add_Visible = false;
-      } else if (A === true && E == true) {
-        this.Table_Edit_Visible = false;
-        this.Table_Add_Visible = false;
-      } else {
-        this.Table_Edit_Visible = false;
-      }
+    handleAdd: function () {
+      let M = this.Table_Model_Visible;
+      M === true
+        ? (this.Table_Model_Visible = false)
+        : ((this.Table_Add_Visible = true), (this.Table_Model_Visible = true));
     },
     handleEdit(scope_$index, scope_row) {
-      this.form_edit = scope_row;
+      this.form_model = scope_row;
       this.currentQuestion_id = scope_row.question_id;
-      this.form_edit.question_content = scope_row.question_content.replace(
-        /<br>/g,
-        "\n"
-      );
-      this.form_edit.question_content = scope_row.question_content.replace(
-        /&nbsp;/g,
-        " "
-      );
+      this.form_model.question_content = scope_row.question_content;
+      this.form_model.question_content = scope_row.question_content;
+      this.Table_Add_Visible = false;
+      this.Table_Model_Visible = true;
     },
-    handleDelete: function(scope_$index, scope_row) {
+    handleDelete: function (scope_$index, scope_row) {
       this.$confirm("确认要删除吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -321,6 +265,10 @@ export default {
           this.axios.delete("question/" + scope_row.question_id).then((res) => {
             if (res.data["code"] == 200) {
               this.getNewData();
+              axios({
+                method: "get",
+                url: "http://129.28.35.195:3000/",
+              }).then((res) => {});
               this.$message({
                 type: "success",
                 message: "删除成功!",
@@ -342,9 +290,6 @@ export default {
             showClose: true,
           });
         });
-    },
-    mounted: function() {
-      this.addUser();
     },
   },
 };
@@ -371,6 +316,8 @@ export default {
 }
 .add_form_contanier /deep/.dialog-footer {
   text-align: center;
+  margin-top: 100px;
+  margin-bottom: 100px;
 }
 .add_form_contanier {
   position: relative;

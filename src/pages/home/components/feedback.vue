@@ -10,43 +10,25 @@
       :height="tableHeight"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" min-width="12%"> </el-table-column>
-      <el-table-column prop="feedback_id" label="反馈序号" min-width="14%">
-      </el-table-column>
-      <el-table-column prop="feedback_type" label="反馈类型" min-width="18%">
-      </el-table-column>
-      <el-table-column
-        prop="feedback_question"
-        label="反馈问题"
-        min-width="24%"
-      >
-      </el-table-column>
-      <el-table-column prop="is_handled" label="是否解决" min-width="14%">
-      </el-table-column>
+      <el-table-column type="selection" min-width="12%"></el-table-column>
+      <el-table-column prop="feedback_id" label="反馈序号" min-width="14%"></el-table-column>
+      <el-table-column prop="feedback_type" label="反馈类型" min-width="18%"></el-table-column>
+      <el-table-column prop="feedback_question" label="反馈问题" min-width="24%"></el-table-column>
+      <el-table-column prop="is_handled" label="是否解决" min-width="14%"></el-table-column>
       <el-table-column label="操作" min-width="20%" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-            >处理
-          </el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-            >删除
-          </el-button>
+          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">处理</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <div
-      style="text-align: center;position:fixed;width:100%;bottom:8px;margin-top:8px;"
-    >
+    <div style="text-align: center;position:fixed;width:100%;bottom:8px;margin-top:8px;">
       <el-pagination
         background
         layout="prev, pager, next"
         :total="total"
         @current-change="current_change"
-      >
-      </el-pagination>
+      ></el-pagination>
     </div>
   </div>
 </template>
@@ -61,7 +43,7 @@ export default {
       multipleSelection: [],
       total: 0,
       pagesize: 10,
-      currentPage: 1,
+      currentPage: 1
     };
   },
   created() {
@@ -74,6 +56,7 @@ export default {
       let feedbackData = JSON.parse(localStorage.getItem("feedbackData"));
       if (feedbackData) {
         this.tableData = feedbackData;
+        this.total = feedbackData.length;
       } else {
         this.getNewData();
       }
@@ -81,8 +64,8 @@ export default {
     getNewData: function() {
       this.axios({
         method: "get",
-        url: "feedback/",
-      }).then((res) => {
+        url: "feedback/"
+      }).then(res => {
         this.tableData = res.data.data;
         this.total = res.data.data.length;
         this.$store.dispatch("setfeedbackData", res.data.data);
@@ -95,25 +78,25 @@ export default {
       this.$confirm("确认已经处理了吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
           this.axios({
             method: "put",
-            url: "feedback/" + scope_row.feedback_id,
-          }).then((res) => {
+            url: "feedback/" + scope_row.feedback_id
+          }).then(res => {
             if (res.data["status_code"] == 200) {
               this.getNewData();
               this.$message({
                 type: "success",
                 message: "处理成功!",
-                showClose: true,
+                showClose: true
               });
             } else {
               this.$message({
                 type: "info",
                 message: "处理失败!",
-                showClose: true,
+                showClose: true
               });
             }
           });
@@ -121,8 +104,8 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除",
-            showClose: true,
+            message: "已取消",
+            showClose: true
           });
         });
     },
@@ -130,22 +113,22 @@ export default {
       this.$confirm("确认要删除吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
-          this.axios.delete("feedback/" + scope_row.feedback_id).then((res) => {
+          this.axios.delete("feedback/" + scope_row.feedback_id).then(res => {
             if (res.data["status_code"] == 200) {
               this.getNewData();
               this.$message({
                 type: "success",
                 message: "删除成功!",
-                showClose: true,
+                showClose: true
               });
             } else {
               this.$message({
                 type: "info",
                 message: "删除失败!",
-                showClose: true,
+                showClose: true
               });
             }
           });
@@ -154,15 +137,15 @@ export default {
           this.$message({
             type: "info",
             message: "已取消删除",
-            showClose: true,
+            showClose: true
           });
         });
     },
     handleSelectionChange: function(l, s) {},
     mounted: function() {
       this.addUser();
-    },
-  },
+    }
+  }
 };
 </script>
 

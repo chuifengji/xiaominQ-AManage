@@ -1,3 +1,4 @@
+const path = require('path')
 module.exports = {
   outputDir: "dist", //build输出目录
   assetsDir: "assets", //静态资源目录（js, css, img）
@@ -20,4 +21,8 @@ module.exports = {
     //   },
     // },
   },
+  // chainWebpack:config=>{
+  //   config.resolve.alias.set("",path.resolve(__dirname,'src/assets/wangEditor.css'))
+  // }
+
 };
